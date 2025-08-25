@@ -73,13 +73,12 @@ export class HandData {
     if (!hand) {
       throw new Error("Object not found");
     }
-    const id: string = hand.id;
 
     const cards = this.db
       .query<any, []>(`SELECT * FROM cards WHERE handId = "${handId}"`)
       .all()
       .map((card) => {
-        return new Card(card.number, this.suitsToEnum(card.suit));
+        return new Card(this.suitsToEnum(card.suit), card.number);
       });
     return new Hand(cards);
   }

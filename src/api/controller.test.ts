@@ -1,17 +1,35 @@
 import { describe, expect, it } from "bun:test";
-import { Controller, HandComparison } from "./controller";
-import { GameResult } from "../poker/hand";
+import { Controller } from "./controller";
+import { Card, GameResult, Hand, Suits } from "../poker/hand";
 import * as uuid from "uuid";
+import { HandComparison } from "./model";
+import { HandData } from "./data";
+import { Database } from "bun:sqlite";
 
-class MockHandComparison implements HandComparison {
-  private result: GameResult;
-
-  constructor(result: GameResult = GameResult.Win) {
-    this.result = result;
+class MockHandData extends HandData {
+  constructor() {
+    super(new Database(":memory:"));
   }
 
-  compareHands(playerHand: string, opponentHand: string): GameResult {
-    return this.result;
+  override getById(handId: string): Hand {
+    return new Hand([
+      new Card(Suits.Club, 1),
+      new Card(Suits.Diamond, 2),
+      new Card(Suits.Heart, 3),
+      new Card(Suits.Spade, 4),
+      new Card(Suits.Club, 5),
+    ]);
+  }
+}
+
+class MockHandComparison extends HandComparison {
+  private gameResult: GameResult;
+  constructor(gameResult: GameResult = GameResult.Win) {
+    super(new MockHandData());
+    this.gameResult = gameResult;
+  }
+  override compareHands(handId: string, anotherHandId: string): GameResult {
+    return this.gameResult;
   }
 }
 
@@ -145,13 +163,16 @@ describe("Controller", () => {
     expect(body["result"]).toBe("draw");
   });
 
-  class MockErrorHandComparison implements HandComparison {
-    compareHands(handId: string, anotherHandId: string): GameResult {
+  class MockErrorHandComparison extends HandComparison {
+    constructor() {
+      super(new MockHandData());
+    }
+    override compareHands(handId: string, anotherHandId: string): GameResult {
       throw new Error("not found");
     }
   }
 
-  it.only("should return 404 when model return error", async () => {
+  it("should return 404 when model return error", async () => {
     const controller = new Controller(new MockErrorHandComparison());
     const request = new Request(
       new URL(`/api/${testPlayerId}/showdown`, "http://host.com").toString(),

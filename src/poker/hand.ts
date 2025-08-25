@@ -18,6 +18,10 @@ export class Card {
     public suits: Suits,
     public number: number,
   ) {}
+
+  equals(c: Card): boolean {
+    return this.number === c.number && this.suits === c.suits;
+  }
 }
 
 export class Hand {
@@ -31,5 +35,14 @@ export class Hand {
     const thisRank = handRankFromHand(this);
     const otherRank = handRankFromHand(other);
     return thisRank.compare(otherRank);
+  }
+
+  public cardExists(card: Card): boolean {
+    const cardExists = this.cards.some((c) => c.equals(card));
+    return cardExists;
+  }
+
+  validate(): boolean {
+    return this.cards.length === 5;
   }
 }

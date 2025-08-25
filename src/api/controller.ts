@@ -1,16 +1,6 @@
 import * as uuid from "uuid";
 import { GameResult } from "../poker/hand";
-
-export class HandComparison {
-  constructor() {
-    // Initialize hand comparison logic here
-  }
-
-  compareHands(handId: string, anotherHandId: string): GameResult {
-    // Implement hand comparison logic here
-    return GameResult.Win;
-  }
-}
+import type { HandComparison } from "./model";
 
 export class Controller {
   private handComparison: HandComparison;
@@ -49,7 +39,7 @@ export class Controller {
       if ((error as Error).message === "not found") {
         return new Response("not found", { status: 404 });
       }
-
+      console.log(error);
       return new Response("unknown error", { status: 500 });
     }
   }
