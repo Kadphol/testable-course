@@ -1,9 +1,14 @@
-import { Controller, HandComparison } from "./controller";
+import { Controller } from "./controller";
+import { HandData } from "./data";
+import { HandComparison } from "./model";
+import { Database } from "bun:sqlite";
 
-export function startServer() {
+export function startServer(dbName: string = "cards.sqlite") {
   Bun.serve({
     async fetch(req) {
-      return new Controller(new HandComparison()).handle(req);
+      return new Controller(
+        new HandComparison(new HandData(new Database(dbName))),
+      ).handle(req);
     },
     error(e) {
       return new Response(`Error:${e.message}`, {

@@ -1,6 +1,7 @@
 import * as uuid from "uuid";
 import { GameResult } from "../poker/hand";
 import type { HandComparison } from "./model";
+import { GameResultView } from "./view";
 
 export class Controller {
   private handComparison: HandComparison;
@@ -28,7 +29,7 @@ export class Controller {
         return new Response("invalid request", { status: 422 });
       }
       const result = this.handComparison.compareHands(handId, anotherHandId);
-      return new Response(JSON.stringify({ result: getResult(result) }), {
+      return new Response(JSON.stringify(new GameResultView(result)), {
         status: 200,
       });
     } catch (error) {
